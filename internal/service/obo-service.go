@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -21,13 +22,13 @@ type oboService struct {
 	Scope        string
 }
 
-func NewOboService(scope string) OboService {
+func NewOboService() OboService {	
 	return &oboService{
 		Client:       &http.Client{Timeout: 10 * http.DefaultClient.Timeout},
 		ClientID:     os.Getenv("AZURE_CLIENT_ID"),
 		ClientSecret: os.Getenv("AZURE_CLIENT_SECRET"),
 		TentantID:    os.Getenv("AZURE_TENANT_ID"),
-		Scope:        scope,
+		Scope:        os.Getenv("AZURE_API_SCOPE"),
 	}
 }
 
@@ -68,6 +69,19 @@ func (s *oboService) GetOboToken(ctx context.Context, accessToken string) (strin
 
 	// Check for response status
 	if resp.StatusCode != http.StatusOK {
+
+		// Print the response body
+		var errResp struct {
+			Error            string `json:"error"`
+			ErrorDescription string `json:"error_description"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
+			fmt.Printf("Error: %+v\n", resp.Body)
+			return "", errors.New("failed to get OBO token")
+		}
+
+		fmt.Println("Error while getting the OBO token")
+		fmt.Printf("Error: %+v\n", errResp)
 		return "", errors.New("failed to get OBO token")
 	}
 

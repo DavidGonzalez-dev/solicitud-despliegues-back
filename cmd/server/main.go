@@ -25,7 +25,7 @@ func main() {
 	}))
 
 	// Wiring dependencies
-	oboService := service.NewOboService("user.read")
+	oboService := service.NewOboService()
 	oboUseCase := usecase.NewOboUsecase(oboService)
 	oboHandler := handler.NewOboHandler(oboUseCase)
 

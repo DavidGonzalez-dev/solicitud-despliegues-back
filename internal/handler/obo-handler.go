@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	"go-solicitud-despliegues-back/internal/domain"
 	"go-solicitud-despliegues-back/internal/usecase"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,12 +24,20 @@ func NewOboHandler(oboUseCase usecase.OboUseCase) OboHandler {
 }
 
 func (h *oboHandler) LoginOnBehalfOf(c echo.Context) error {
-	var req domain.OboRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
-	}
-	fmt.Println(req)
 
+	// Get token from request
+	token, ok := c.Request().Header["Authorization"]
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+	}
+
+	tokenString := strings.Join(token, "")
+	tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
+	req := domain.OboRequest{
+		AccessToken: tokenString,
+	}
+
+	// Get OBO token
 	res, err := h.OboUseCase.LoginOnBehalfOf(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error", "error_message": err.Error()})
