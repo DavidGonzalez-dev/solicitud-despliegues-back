@@ -6,11 +6,17 @@ import (
 	"go-solicitud-despliegues-back/internal/usecase"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+
+	// Load env variables
+	if err := godotenv.Load(); err != nil {
+		panic("failed to load env variables")
+	}
 
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
