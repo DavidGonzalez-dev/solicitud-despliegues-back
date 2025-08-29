@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"go-solicitud-despliegues-back/internal/config"
 	"go-solicitud-despliegues-back/internal/handler"
+	"go-solicitud-despliegues-back/internal/repository/migrations"
 	"go-solicitud-despliegues-back/internal/service"
-	"go-solicitud-despliegues-back/internal/usecase"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -18,18 +20,30 @@ func main() {
 		panic("failed to load env variables")
 	}
 
+	// Do database migrations.
+
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:4200"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
-	// Wiring dependencies
-	oboService := service.NewOboService()
-	oboUseCase := usecase.NewOboUsecase(oboService)
-	oboHandler := handler.NewOboHandler(oboUseCase)
+	// Connect to database
+	db, err := config.NewDatabaseConnection()
+	if err != nil {
+		panic(fmt.Sprintf("failed to connect to database: %v", err))
+	}
 
-	e.POST("/obo", oboHandler.LoginOnBehalfOf)
+	// Run database migrations.
+	if err := migrations.Migrate(db); err != nil {
+		panic(fmt.Sprintf("failed to run database migrations: %v", err))
+	}
+
+	// Wiring dependencies
+	azureDevopsService := service.NewAzureDevopsService()
+	userHandler := handler.NewUserHandler(azureDevopsService)
+
+	e.POST("/me", userHandler.GetUserAzureDVProfile)
 
 	port := os.Getenv("PORT")
 	if port == "" {
