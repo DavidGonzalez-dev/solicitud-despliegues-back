@@ -22,18 +22,18 @@ type oboService struct {
 	Scope        string
 }
 
-func NewOboService() OboService {	
+func NewOboService(scope string) OboService {
 	return &oboService{
 		Client:       &http.Client{Timeout: 10 * http.DefaultClient.Timeout},
 		ClientID:     os.Getenv("AZURE_CLIENT_ID"),
 		ClientSecret: os.Getenv("AZURE_CLIENT_SECRET"),
 		TentantID:    os.Getenv("AZURE_TENANT_ID"),
-		Scope:        os.Getenv("AZURE_API_SCOPE"),
+		Scope:        scope,
 	}
 }
 
 func (s *oboService) GetOboToken(ctx context.Context, accessToken string) (string, error) {
-	// Build the endpoint url and request body
+
 	url := "https://login.microsoftonline.com/" + s.TentantID + "/oauth2/v2.0/token"
 	data := map[string]string{
 		"client_id":           s.ClientID,
