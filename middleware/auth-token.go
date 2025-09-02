@@ -1,7 +1,7 @@
 package customMiddleware
 
 import (
-	"go-solicitud-despliegues-back/internal/config"
+	"go-solicitud-despliegues-back/config"
 	customContext "go-solicitud-despliegues-back/pkg/context"
 	"net/http"
 	"strings"
@@ -20,7 +20,7 @@ import (
 // - audience contains ApiAudience
 // - exp (expiration) not expired
 // - exposes useful claims in ContextUser
-func JWTValidatorMiddleware(authenticator *config.Authenticator) echo.MiddlewareFunc {
+func RequireAccessToken(authenticator *config.Authenticator) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 

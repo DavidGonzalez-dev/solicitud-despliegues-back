@@ -40,11 +40,17 @@ func (s *azureDevOpsService) GetUserAzureDVProfile(ctx context.Context, accessTo
 	}
 	req.Header.Set("Authorization", "Bearer "+oboToken)
 
-	var result domain.UserAzureDVProfile
-	if err := pkgHttp.DoHttpRequest(req, &result); err != nil {
+	
+	var result2 struct {
+		Id          string `json:"id"`
+		DisplayName string `json:"displayName"`
+	}
+	if err := pkgHttp.DoHttpRequest(req, &result2); err != nil {
 		return nil, err
 	}
 
-	// Return info
-	return &result, nil
+	return &domain.UserAzureDVProfile{
+		AzureID:          result2.Id,
+		DisplayName: result2.DisplayName,
+	}, nil
 }
