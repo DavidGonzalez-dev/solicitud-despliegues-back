@@ -3,6 +3,7 @@ package customMiddleware
 import (
 	"go-solicitud-despliegues-back/config"
 	customContext "go-solicitud-despliegues-back/pkg/context"
+	pkgHttp "go-solicitud-despliegues-back/pkg/http"
 	"net/http"
 	"strings"
 	"time"
@@ -27,8 +28,11 @@ func RequireAccessToken(authenticator *config.Authenticator) echo.MiddlewareFunc
 			// Get token from header
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-				println("Missing or invalid Authorization header")
-				return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+				return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+					Status:  http.StatusUnauthorized,
+					Message: "Missing or invalid Authorization header",
+					Error:   "Unauthorized",
+				})
 			}
 			tokenString := authHeader[len("Bearer "):]
 
@@ -36,31 +40,47 @@ func RequireAccessToken(authenticator *config.Authenticator) echo.MiddlewareFunc
 			token, err := jwt.Parse(tokenString, authenticator.JWKS.Keyfunc)
 			if err != nil {
 				println("Error parsing token:", err.Error())
-				return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+				return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+					Status:  http.StatusUnauthorized,
+					Message: "Unauthorized",
+				})
 			}
 
 			// Read Claims
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
 				println("Invalid token claims")
-				return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+				return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+					Status:  http.StatusUnauthorized,
+					Message: "Unauthorized",
+				})
+
 			}
 
 			if exp, ok := claims["exp"].(float64); ok {
 				if time.Unix(int64(exp), 0).Before(time.Now()) {
 					println("Token has expired")
-					return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+					return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+						Status:  http.StatusUnauthorized,
+						Message: "Unauthorized",
+					})
 				}
 			}
 
 			// Validate claims
 			if claims["aud"] != authenticator.Audience {
 				println("Invalid audience")
-				return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+				return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+					Status:  http.StatusUnauthorized,
+					Message: "Unauthorized",
+				})
 			}
 			if claims["iss"] != authenticator.Issuer {
 				println("Invalid issuer")
-				return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
+				return c.JSON(http.StatusUnauthorized, pkgHttp.HttpError{
+					Status:  http.StatusUnauthorized,
+					Message: "Unauthorized",
+				})
 			}
 
 			// Store Map claims as contextUser

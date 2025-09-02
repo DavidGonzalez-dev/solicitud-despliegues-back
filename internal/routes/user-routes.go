@@ -11,7 +11,5 @@ import (
 
 func NewUserRoutes(e *echo.Echo, userHandler handler.UserHandler, authenticator *config.Authenticator) {
 
-	userGroup := e.Group("/user")
-
-	userGroup.POST("/me", userHandler.GetUserOrganizations, customMiddleware.RequireAccessToken(authenticator))
+	e.GET("/me", userHandler.GetUserInfo, customMiddleware.RequireAccessToken(authenticator))
 }

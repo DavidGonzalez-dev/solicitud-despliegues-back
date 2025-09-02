@@ -12,7 +12,7 @@ import (
 )
 
 type UserUseCase interface {
-	GetUserOrganizations(ctx context.Context) (*domain.UserAzureDVProfile, error)
+	GetUserInfo(ctx context.Context) (*domain.UserAzureDVProfile, error)
 }
 
 type userUsecase struct {
@@ -27,7 +27,7 @@ func NewUserUseCase(s service.AzureDevOpsService, r repository.UserRepository) U
 	}
 }
 
-func (uc *userUsecase) GetUserOrganizations(ctx context.Context) (*domain.UserAzureDVProfile, error) {
+func (uc *userUsecase) GetUserInfo(ctx context.Context) (*domain.UserAzureDVProfile, error) {
 
 	// Get user from context
 	userContext := ctx.Value(customContext.UserCtxKey).(customContext.ContextUser)
@@ -49,8 +49,7 @@ func (uc *userUsecase) GetUserOrganizations(ctx context.Context) (*domain.UserAz
 			}
 
 			userAzureDVProfile.ObjectID = userContext.OID
-			println("User OID from azure:", userContext.OID)
-			println("User Azure ID from azure:", userAzureDVProfile.AzureID)
+			userAzureDVProfile.Role = userContext.Roles[0].(string)
 
 			// Store the profile in the database
 			if err := uc.repo.StoreUserProfile(userAzureDVProfile); err != nil {

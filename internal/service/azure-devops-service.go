@@ -40,7 +40,7 @@ func (s *azureDevOpsService) GetUserAzureDVProfile(ctx context.Context, accessTo
 	}
 	req.Header.Set("Authorization", "Bearer "+oboToken)
 
-	
+	// Do the request
 	var result2 struct {
 		Id          string `json:"id"`
 		DisplayName string `json:"displayName"`
@@ -49,6 +49,7 @@ func (s *azureDevOpsService) GetUserAzureDVProfile(ctx context.Context, accessTo
 		return nil, err
 	}
 
+	// Parse and return the user profile
 	return &domain.UserAzureDVProfile{
 		AzureID:          result2.Id,
 		DisplayName: result2.DisplayName,
