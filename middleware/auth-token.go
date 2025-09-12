@@ -83,12 +83,39 @@ func RequireAccessToken(authenticator *config.Authenticator) echo.MiddlewareFunc
 				})
 			}
 
+			rawRoles, ok := claims["roles"]
+			if !ok {
+				return c.JSON(http.StatusForbidden, pkgHttp.HttpError{
+					Status:  http.StatusForbidden,
+					Message: "Access denied: no roles claim",
+					Error:   "no roles claim",
+				})
+			}
+
+			rolesInterface, ok := rawRoles.([]any)
+			if !ok || len(rolesInterface) == 0 {
+				return c.JSON(http.StatusForbidden, pkgHttp.HttpError{
+					Status:  http.StatusForbidden,
+					Message: "Access denied: invalid roles claim",
+					Error:   "invalid roles claim",
+				})
+			}
+
+			role, ok := rolesInterface[0].(string)
+			if !ok {
+				return c.JSON(http.StatusForbidden, pkgHttp.HttpError{
+					Status:  http.StatusForbidden,
+					Message: "Access denied: invalid role format",
+					Error:   "invalid role format",
+				})
+			}
+
 			// Store Map claims as contextUser
 			contextUser := customContext.ContextUser{
 				AccessToken: tokenString,
 				Subject:     claims["sub"].(string),
 				OID:         claims["oid"].(string),
-				Roles:       claims["roles"].([]any),
+				Role:        role,
 				Raw:         claims,
 			}
 			c.Set(customContext.UserCtxKey, contextUser)

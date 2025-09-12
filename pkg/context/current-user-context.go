@@ -17,7 +17,7 @@ type ContextUser struct {
 	OID         string        // oid (object id)
 	UPD         string        // upd (preferred username)
 	Scopes      []string      // scp (scopes)
-	Roles       []any         // roles (roles)
+	Role        string        // roles (roles)
 	Raw         jwt.MapClaims // raw claims (all claims)
 }
 

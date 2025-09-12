@@ -2,6 +2,7 @@ package routes
 
 import (
 	"go-solicitud-despliegues-back/config"
+	"go-solicitud-despliegues-back/internal/domain"
 	"go-solicitud-despliegues-back/internal/handler"
 	customMiddleware "go-solicitud-despliegues-back/middleware"
 
@@ -11,5 +12,7 @@ import (
 
 func NewUserRoutes(e *echo.Echo, userHandler handler.UserHandler, authenticator *config.Authenticator) {
 
-	e.GET("/me", userHandler.GetUserInfo, customMiddleware.RequireAccessToken(authenticator))
+	e.GET("/me", userHandler.GetUserInfo,
+	 customMiddleware.RequireAccessToken(authenticator), 
+	 customMiddleware.RequireRole([]string{domain.UserRoles.CLOUD, domain.UserRoles.DEVELOPER}))
 }

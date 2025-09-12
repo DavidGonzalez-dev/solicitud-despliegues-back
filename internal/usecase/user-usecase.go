@@ -49,7 +49,7 @@ func (uc *userUsecase) GetUserInfo(ctx context.Context) (*domain.UserAzureDVProf
 			}
 
 			userAzureDVProfile.ObjectID = userContext.OID
-			userAzureDVProfile.Role = userContext.Roles[0].(string)
+			userAzureDVProfile.Role = userContext.Role
 
 			// Store the profile in the database
 			if err := uc.repo.StoreUserProfile(userAzureDVProfile); err != nil {
