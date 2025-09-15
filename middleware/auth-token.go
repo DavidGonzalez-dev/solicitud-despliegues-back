@@ -118,7 +118,7 @@ func RequireAccessToken(authenticator *config.Authenticator) echo.MiddlewareFunc
 				Role:        role,
 				Raw:         claims,
 			}
-			c.Set(customContext.UserCtxKey, contextUser)
+			c.Set(string(customContext.UserCtxKey), contextUser)
 			return next(c)
 
 		}

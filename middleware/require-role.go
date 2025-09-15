@@ -12,7 +12,7 @@ import (
 func RequireRole(roles []string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			user := c.Get(customContext.UserCtxKey)
+			user := c.Get(string(customContext.UserCtxKey))
 			if user == nil {
 				return c.JSON(http.StatusForbidden, pkgHttp.HttpError{
 					Status:  http.StatusForbidden,

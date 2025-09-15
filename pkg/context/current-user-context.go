@@ -8,7 +8,9 @@ import (
 )
 
 // const to store user context key
-const UserCtxKey string = "auth.user"
+type ctxKey string
+
+const UserCtxKey ctxKey = "auth.user"
 
 // Context user contains the min info we want to store in the context after validating the JWT
 type ContextUser struct {
