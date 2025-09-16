@@ -2,7 +2,7 @@ package pkgHttp
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -12,8 +12,14 @@ func DoHttpRequest(request *http.Request, v any) error {
 		return err
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("failed to parse response")
+		return fmt.Errorf("request failed with status: %s", resp.Status)
 	}
-	return json.NewDecoder(resp.Body).Decode(v)
+
+	if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
+		return fmt.Errorf("failed to parse response, %w", err)
+	}
+
+	return nil
 }
