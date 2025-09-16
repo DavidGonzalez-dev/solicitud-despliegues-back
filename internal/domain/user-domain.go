@@ -9,8 +9,9 @@ var UserRoles = struct {
 }
 
 type UserAzureDVProfile struct {
-	ObjectID    string `json:"oid" gorm:"primaryKey"`
-	AzureID     string `json:"azureId" gorm:"azure_id;not null"`
-	DisplayName string `json:"displayName" gorm:"display_name;not null"`
-	Role        string `json:"role" gorm:"role;not null"`
+	AccountID     string                    `json:"accountId" gorm:"primaryKey;not null"`
+	ObjectID      string                    `json:"objectId" gorm:"object_id;not null;unique"`
+	DisplayName   string                    `json:"displayName" gorm:"not null"`
+	Role          string                    `json:"role" gorm:"not null"`
+	Organizations []AzureDevopsOrganization `json:"organizations" gorm:"many2many:user_organizations"`
 }
